@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Risk Predictor</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="style.css?v=20260623">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <h1 class="app-title"><i class="fa-solid fa-heart-pulse logo-icon"></i> Health Risk Predictor</h1>
+            <p class="app-subtitle">Predicting Risk • Explaining Drivers • Guiding Action</p>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="navigation-bar">
+            <div class="nav-pills-container">
+                <button class="nav-pill active" data-tab="assessment"><i class="fa-regular fa-clipboard"></i> Assessment</button>
+                <button class="nav-pill" data-tab="insights" id="tab-insights-btn" disabled><i class="fa-solid fa-chart-simple"></i> Insights</button>
+                <button class="nav-pill" data-tab="actionplan" id="tab-actionplan-btn" disabled><i class="fa-solid fa-crosshairs"></i> Action Plan</button>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- TAB 1: ASSESSMENT -->
+            <section id="assessment-tab" class="tab-view active">
+                <div class="grid-2-col">
+                    <!-- Left Column: Patient Info, Upload, Body Metrics -->
+                    <div class="column-gap">
+                        <!-- Section 1 & 2: Info & Import Report -->
+                        <div class="card">
+                            <h2 class="card-title"><i class="fa-solid fa-hospital-user"></i> Patient Information</h2>
+                            <div class="form-grid-3">
+                                <div class="form-group span-2">
+                                    <label for="patient-name">Full Name</label>
+                                    <input type="text" id="patient-name" placeholder="Enter patient name..." value="">
+                                </div>
+                                <div class="form-group">
+                                    <label for="patient-gender">Gender</label>
+                                    <select id="patient-gender">
+                                        <option value="Select">Select</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-grid-1" style="margin-top: 15px;">
+                                <div class="form-group">
+                                    <label for="patient-age">Age <span class="required-star">*</span></label>
+                                    <input type="number" id="patient-age" placeholder="e.g. 45" min="1" max="120">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Import Medical Report Card -->
+                        <div class="card">
+                            <h2 class="card-title"><i class="fa-solid fa-file-import"></i> Import Medical Report</h2>
+                            <p class="card-description">Upload clinical vitals, lab reports, or choose a mock scenario below to auto-fill the assessment fields.</p>
+                            
+                            <!-- Mock Scenario Picker -->
+                            <div class="mock-scenarios-container">
+                                <button class="mock-scenario-btn btn-danger" data-filename="report_high_risk.png">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> High Risk Mock
+                                </button>
+                                <button class="mock-scenario-btn btn-warning" data-filename="report_moderate_risk.png">
+                                    <i class="fa-solid fa-circle-info"></i> Moderate Risk Mock
+                                </button>
+                                <button class="mock-scenario-btn btn-success" data-filename="report_low_risk.png">
+                                    <i class="fa-solid fa-circle-check"></i> Low Risk Mock
+                                </button>
+                            </div>
+
+                            <div class="upload-dropzone" id="upload-dropzone">
+                                <input type="file" id="file-uploader" accept=".pdf,.png,.jpg,.jpeg" style="display: none;">
+                                <div class="dropzone-prompt">
+                                    <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+                                    <p>Drag & Drop report PDF / Image here or <span class="browse-link">Browse Files</span></p>
+                                    <span class="file-limits">Supported: PDF, PNG, JPG (Max 5MB)</span>
+                                </div>
+                            </div>
+
+                            <!-- Upload Status Area -->
+                            <div class="upload-status-box hidden" id="upload-status-box">
+                                <div class="status-header">
+                                    <span class="status-filename" id="status-filename">report_high_risk.png</span>
+                                    <span class="status-badge" id="status-badge">Extracted</span>
+                                </div>
+                                <div class="status-details" style="margin-bottom: 10px;">
+                                    <span id="status-text">Status: Successful</span>
+                                    <span id="status-metrics-count">Metrics Found: 12</span>
+                                </div>
+                                
+                                <!-- Low OCR Confidence Warning Banner -->
+                                <div class="alert-box alert-warning hidden" id="ocr-warning-banner" style="margin-bottom: 12px; padding: 10px; border-radius: var(--border-radius-md); border: 1px solid var(--accent-orange); background-color: #FFFBEB; color: #B45309; font-size: 0.85rem; text-align: left;">
+                                    <i class="fa-solid fa-triangle-exclamation" style="margin-right: 6px; color: var(--accent-orange);"></i>
+                                    <strong>⚠ Low OCR Confidence:</strong>
+                                    <span id="ocr-warning-text">The uploaded report could not be reliably processed. Please upload a clearer image or manually enter values.</span>
+                                </div>
+                                
+                                <!-- Meta stats: OCR text length & Overall confidence -->
+                                <div class="extraction-meta-stats" id="extraction-meta-stats" style="display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 12px; border-top: 1px solid var(--border-color); padding-top: 8px;">
+                                    <span>OCR Text Length: <strong id="ocr-text-length">0 chars</strong></span>
+                                    <span>Avg Confidence: <strong id="ocr-avg-confidence">0%</strong></span>
+                                </div>
+
+                                <!-- Dynamic Panels: Extracted Biomarkers & Missing Fields -->
+                                <div class="dynamic-panels-grid" style="display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 15px; text-align: left;">
+                                    <!-- Extracted Biomarkers Panel -->
+                                    <div class="panel-card" id="extracted-biomarkers-panel" style="background: #F0FDFA; border: 1px solid #14B8A6; border-radius: var(--border-radius-md); padding: 10px; display: none;">
+                                        <h3 style="font-size: 0.88rem; margin: 0 0 8px 0; color: #0F766E; display: flex; align-items: center; gap: 6px;">
+                                            <i class="fa-solid fa-square-check"></i> Extracted Clinical Biomarkers
+                                        </h3>
+                                        <ul id="extracted-biomarkers-list" style="margin: 0; padding-left: 0; font-size: 0.85rem; color: #115E59; list-style-type: none; line-height: 1.5;">
+                                            <!-- Dynamic items -->
+                                        </ul>
+                                    </div>
+
+                                    <!-- Additional Information Required Panel -->
+                                    <div class="panel-card" id="missing-info-panel" style="background: #FEF2F2; border: 1px solid #F87171; border-radius: var(--border-radius-md); padding: 10px; display: none;">
+                                        <h3 style="font-size: 0.88rem; margin: 0 0 8px 0; color: #B91C1C; display: flex; align-items: center; gap: 6px;">
+                                            <i class="fa-solid fa-circle-exclamation"></i> Additional Information Required
+                                        </h3>
+                                        <ul id="missing-info-list" style="margin: 0; padding-left: 0; font-size: 0.85rem; color: #991B1B; list-style-type: none; line-height: 1.5;">
+                                            <!-- Dynamic items -->
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Report Summary Card -->
+                                <div class="report-summary-card" id="report-summary-card" style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: var(--border-radius-md); padding: 12px; margin-bottom: 15px; display: none; text-align: left; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);">
+                                    <h3 style="font-size: 0.9rem; margin: 0 0 8px 0; color: #1E293B; display: flex; align-items: center; gap: 6px;">
+                                        <i class="fa-regular fa-file-lines"></i> 📄 Report Summary
+                                    </h3>
+                                    <div style="font-size: 0.85rem; line-height: 1.5; color: #334155;">
+                                        <div style="margin-bottom: 2px;"><strong>Patient Name:</strong> <span id="summary-patient-name">--</span></div>
+                                        <div style="margin-bottom: 2px;"><strong>Age/Gender:</strong> <span id="summary-patient-age-gender">--</span></div>
+                                        <div style="margin-bottom: 2px;"><strong>Biomarkers Extracted:</strong> <span id="summary-biomarkers-count">0</span></div>
+                                        <div style="margin-bottom: 2px;"><strong>Missing Inputs:</strong> <span id="summary-missing-inputs" style="color: #EF4444; font-weight: 600;">--</span></div>
+                                        <div style="margin-bottom: 2px;"><strong>OCR Confidence:</strong> <span id="summary-ocr-confidence">0%</span></div>
+                                    </div>
+                                </div>
+
+                                <!-- Extraction Review Table -->
+                                <div class="review-table-container" id="review-table-container" style="margin-top: 10px; margin-bottom: 12px; max-height: 250px; overflow-y: auto;">
+                                    <table class="review-table" style="width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: left;">
+                                        <thead>
+                                            <tr style="border-bottom: 2px solid var(--border-color); color: var(--primary-color); font-weight: 700;">
+                                                <th style="padding: 6px 4px;">Parameter</th>
+                                                <th style="padding: 6px 4px;">Extracted Value</th>
+                                                <th style="padding: 6px 4px; text-align: right;">Confidence</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="review-table-body">
+                                            <!-- Dynamic rows rendered by JS -->
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- Confirm button -->
+                                <div style="text-align: center; margin-bottom: 12px;">
+                                    <button class="btn btn-primary" id="btn-use-extracted" style="padding: 8px 18px; font-size: 0.88rem; width: 100%;">
+                                        <i class="fa-solid fa-square-check"></i> Use Extracted Values
+                                    </button>
+                                </div>
+
+                                <!-- Collapsible developer section -->
+                                <details class="raw-ocr-details" style="margin-top: 8px; font-size: 0.8rem; border-top: 1px solid var(--border-color); padding-top: 8px;">
+                                    <summary style="cursor: pointer; font-weight: 700; color: var(--text-muted); outline: none;">
+                                        <i class="fa-solid fa-code"></i> Raw OCR Text (Debug Logs)
+                                    </summary>
+                                    <pre id="raw-ocr-text" style="background-color: #F8FAFC; border: 1px solid var(--border-color); border-radius: var(--border-radius-md); padding: 8px; margin-top: 6px; white-space: pre-wrap; font-family: monospace; max-height: 150px; overflow-y: auto; color: var(--text-dark); text-align: left;"></pre>
+                                </details>
+                            </div>
+                        </div>
+
+                        <!-- Body Metrics Card -->
+                        <div class="card">
+                            <h2 class="card-title"><i class="fa-solid fa-weight-scale"></i> Body Metrics</h2>
+                            <div class="metrics-row-container">
+                                <div class="metrics-inputs-side">
+                                    <div class="form-group">
+                                        <label for="patient-height">Height (cm) <span class="required-star">*</span></label>
+                                        <input type="number" id="patient-height" placeholder="e.g. 175" min="50" max="250">
+                                    </div>
+                                    <div class="form-group" style="margin-top: 10px;">
+                                        <label for="patient-weight">Weight (kg) <span class="required-star">*</span></label>
+                                        <input type="number" id="patient-weight" placeholder="e.g. 80" min="20" max="300">
+                                    </div>
+                                </div>
+                                
+                                <!-- Compact BMI Card -->
+                                <div class="bmi-kpi-card bmi-muted" id="bmi-kpi-card">
+                                    <span class="bmi-kpi-title">BMI (BODY MASS INDEX)</span>
+                                    <span class="bmi-kpi-value" id="bmi-value">--</span>
+                                    <span class="bmi-kpi-status hidden" id="bmi-status">Healthy</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Clinical Indicators & Lifestyle -->
+                    <div class="column-gap">
+                        <!-- Clinical Indicators Card -->
+                        <div class="card">
+                            <h2 class="card-title"><i class="fa-solid fa-stethoscope"></i> Clinical Indicators</h2>
+                            <div class="form-grid-2">
+                                <div class="form-group">
+                                    <label for="patient-sys-bp">Systolic BP (mmHg) <span class="required-star">*</span></label>
+                                    <input type="number" id="patient-sys-bp" placeholder="e.g. 120" min="50" max="250">
+                                </div>
+                                <div class="form-group">
+                                    <label for="patient-dia-bp">Diastolic BP (mmHg) <span class="required-star">*</span></label>
+                                    <input type="number" id="patient-dia-bp" placeholder="e.g. 80" min="30" max="180">
+                                </div>
+                            </div>
+                            <div class="form-grid-2" style="margin-top: 15px;">
+                                <div class="form-group">
+                                    <label for="patient-glucose">Blood Glucose (mg/dL) <span class="required-star">*</span></label>
+                                    <input type="number" id="patient-glucose" placeholder="e.g. 95" min="30" max="600">
+                                </div>
+                                <div class="form-group">
+                                    <label for="patient-cholesterol">Cholesterol (mg/dL) <span class="required-star">*</span></label>
+                                    <input type="number" id="patient-cholesterol" placeholder="e.g. 190" min="50" max="500">
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-top: 15px;">
+                                <label for="patient-family-hist">Family History of CVD / Diabetes</label>
+                                <select id="patient-family-hist">
+                                    <option value="Select">Select</option>
+                                    <option value="No">No</option>
+                                    <option value="Yes">Yes</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Lifestyle Profile Card -->
+                        <div class="card">
+                            <h2 class="card-title"><i class="fa-solid fa-user-doctor"></i> Lifestyle Profile</h2>
+                            <div class="form-group">
+                                <label for="patient-smoking">Smoking Status</label>
+                                <select id="patient-smoking">
+                                    <option value="Select">Select</option>
+                                    <option value="Non-Smoker">Non-Smoker</option>
+                                    <option value="Smoker">Smoker</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin-top: 15px;">
+                                <label for="patient-alcohol">Alcohol Consumption</label>
+                                <select id="patient-alcohol">
+                                    <option value="Select">Select</option>
+                                    <option value="None">None</option>
+                                    <option value="Moderate">Moderate</option>
+                                    <option value="Heavy">Heavy</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin-top: 15px;">
+                                <label for="patient-activity">Physical Activity Level</label>
+                                <select id="patient-activity">
+                                    <option value="Select">Select</option>
+                                    <option value="High">High</option>
+                                    <option value="Moderate">Moderate</option>
+                                    <option value="Low">Low</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Validation Alerts Container -->
+                <div class="alert-box alert-error hidden" id="validation-alert">
+                    <i class="fa-solid fa-circle-exclamation alert-icon"></i>
+                    <div class="alert-content">
+                        <strong>Missing Required Fields:</strong>
+                        <span id="validation-fields-list">Please fill out Age, Height, Weight, Blood Pressure, Glucose, and Cholesterol.</span>
+                    </div>
+                </div>
+
+                <!-- Action Button Row -->
+                <div class="action-buttons-row">
+                    <button class="btn btn-primary" id="btn-analyze"><i class="fa-solid fa-heart-pulse"></i> Analyze Patient Risk</button>
+                    <button class="btn btn-secondary" id="btn-reset"><i class="fa-solid fa-rotate-left"></i> Reset Profile</button>
+                </div>
+            </section>
+
+
+            <!-- TAB 2: INSIGHTS -->
+            <section id="insights-tab" class="tab-view">
+                <!-- Risk Summary Horizontal Callout Banner -->
+                <div class="risk-banner banner-green" id="risk-summary-banner">
+                    <div class="banner-pill" id="banner-category"><i class="fa-solid fa-shield-halved"></i> Moderate Risk</div>
+                    <span class="banner-divider">|</span>
+                    <span class="banner-stat" id="banner-score">Score: 51.5%</span>
+                    <span class="banner-divider">|</span>
+                    <span class="banner-stat" id="banner-driver">Primary Driver: High Blood Glucose</span>
+                    <span class="banner-divider">|</span>
+                    <span class="banner-stat" id="banner-plan">Recommended Plan: Lifestyle Intervention</span>
+                </div>
+
+                <!-- Executive Clinical Summary Sentence -->
+                <div class="executive-summary-container">
+                    <p class="exec-summary-text"><strong>Executive Summary:</strong> <span id="exec-summary-content">Patient demonstrates moderate cardiometabolic risk primarily driven by elevated blood glucose. Lifestyle intervention and clinical follow-up are recommended.</span></p>
+                </div>
+
+                <!-- Horizontal Contribution Chart & Recommended Actions Row -->
+                <div class="grid-2-col" style="margin-top: 15px;">
+                    <!-- Left: Clinical Risk Drivers Horizontal Bar Chart -->
+                    <div class="card">
+                        <h2 class="card-title">Clinical Risk Drivers</h2>
+                        <p class="card-description" style="margin-bottom: 15px;">Perturbation analysis calculations of the metabolic parameters contributing to overall risk.</p>
+                        
+                        <div class="shap-chart-container" id="shap-chart-container">
+                            <!-- JS will render dynamic progress bars here -->
+                            <div class="shap-row">
+                                <span class="shap-label">🔴 High Blood Glucose</span>
+                                <div class="shap-bar-bg"><div class="shap-bar bar-red" style="width: 70%;"></div></div>
+                                <span class="shap-value">+22.5%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Recommended Actions -->
+                    <div class="card">
+                        <h2 class="card-title">Recommended Actions</h2>
+                        <p class="card-description" style="margin-bottom: 15px;">Targeted interventions corresponding to the patient's primary risk driver.</p>
+                        <ul class="actions-list" id="recommended-actions-list">
+                            <li><i class="fa-solid fa-circle-check action-checkmark"></i> Reduce refined carbohydrates</li>
+                            <li><i class="fa-solid fa-circle-check action-checkmark"></i> Walk after meals</li>
+                            <li><i class="fa-solid fa-circle-check action-checkmark"></i> Monitor fasting glucose</li>
+                            <li><i class="fa-solid fa-circle-check action-checkmark"></i> Schedule HbA1c testing</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Clinical Interpretation Section -->
+                <div class="card" style="margin-top: 15px;">
+                    <h2 class="card-title"><i class="fa-solid fa-stethoscope"></i> Clinical Interpretation</h2>
+                    <div class="interpretation-slate" id="clinical-interpretation-container">
+                        <ul class="interpretation-list" id="clinical-interpretation-list">
+                            <!-- JS will render dynamic bullets here -->
+                            <li>Elevated blood glucose is the strongest contributor to the patient's cardiometabolic risk profile.</li>
+                            <li>Body weight and BMI indicate increased metabolic burden and should be monitored closely.</li>
+                            <li>Blood pressure remains a secondary risk factor that may benefit from lifestyle optimization.</li>
+                            <li>Lifestyle intervention and periodic clinical follow-up are expected to reduce future risk.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- TAB 3: ACTION PLAN -->
+            <section id="actionplan-tab" class="tab-view">
+                <!-- Priority Intervention Plan Target Card -->
+                <div class="card border-highlight">
+                    <div class="intervention-badge-header">
+                        <h2 class="card-title" style="margin: 0;"><i class="fa-solid fa-bullseye"></i> Priority Intervention Plan</h2>
+                        <span class="priority-pill pill-high" id="intervention-priority">High Priority</span>
+                    </div>
+                    <p class="card-description" style="margin-bottom: 15px;">Primary targets and expected timeline based on risk attribution factors.</p>
+                    
+                    <div class="intervention-grid">
+                        <div class="intervention-kpi">
+                            <span class="kpi-label">Primary Target</span>
+                            <span class="kpi-val" id="kpi-target-name">Fasting Blood Glucose</span>
+                        </div>
+                        <div class="intervention-kpi">
+                            <span class="kpi-label">Current Value</span>
+                            <span class="kpi-val" id="kpi-current-val">142 mg/dL</span>
+                        </div>
+                        <div class="intervention-kpi">
+                            <span class="kpi-label">Target Value</span>
+                            <span class="kpi-val" id="kpi-target-val">&lt; 100 mg/dL</span>
+                        </div>
+                        <div class="intervention-kpi">
+                            <span class="kpi-label">Expected Outcome</span>
+                            <span class="kpi-val" id="kpi-outcome">Risk Reduction Expected</span>
+                        </div>
+                        <div class="intervention-kpi">
+                            <span class="kpi-label">Estimated Timeline</span>
+                            <span class="kpi-val" id="kpi-timeline">3–6 Months</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Plan Horizontal Cards -->
+                <div class="grid-3-col" style="margin-top: 15px;">
+                    <!-- Card 1: Nutrition -->
+                    <div class="card care-card">
+                        <h3 class="care-card-title text-green"><i class="fa-solid fa-apple-whole"></i> 🥗 Nutrition</h3>
+                        <ul class="care-card-bullets" id="nutrition-bullets-list">
+                            <li>Focus on low-glycemic foods (vegetables, legumes, whole grains)</li>
+                            <li>Avoid simple starches, white rice, and sugary sodas</li>
+                            <li>Ensure lean protein and healthy fats are present at each meal</li>
+                        </ul>
+                    </div>
+
+                    <!-- Card 2: Activity -->
+                    <div class="card care-card">
+                        <h3 class="care-card-title text-blue"><i class="fa-solid fa-person-running"></i> 🏃 Activity</h3>
+                        <ul class="care-card-bullets" id="activity-bullets-list">
+                            <li>Commit to a brisk 30-minute daily walk after meals</li>
+                            <li>Combine light cardiorespiratory exercises with mobility stretching</li>
+                            <li>Avoid sedentary blocks by standing 5 minutes every hour</li>
+                        </ul>
+                    </div>
+
+                    <!-- Card 3: Monitoring -->
+                    <div class="card care-card">
+                        <h3 class="care-card-title text-teal"><i class="fa-solid fa-magnifying-glass-chart"></i> 🩺 Monitoring</h3>
+                        <ul class="care-card-bullets" id="monitoring-bullets-list">
+                            <li>Measure fasting blood glucose weekly at home</li>
+                            <li>Monitor blood pressure daily under resting conditions</li>
+                            <li>Routine lipid panel screening once every year</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- AI Health Assistant Section -->
+                <div class="grid-2-col" style="margin-top: 15px;">
+                    <!-- Left: Suggested Questions & Context -->
+                    <div class="card flex-column">
+                        <h2 class="card-title" style="margin-bottom: 8px;"><i class="fa-solid fa-robot"></i> AI Health Assistant</h2>
+                        <p class="card-description" style="margin-bottom: 15px;">Consult the virtual health assistant about metabolic metrics, timelines, or simulator targets.</p>
+                        
+                        <span class="assistant-label">SUGGESTED QUESTIONS:</span>
+                        <div class="suggested-pills" id="suggested-pills-container">
+                            <button class="suggested-pill-btn" data-query="Can I eat rice?"><i class="fa-solid fa-bowl-rice"></i> Can I eat rice?</button>
+                            <button class="suggested-pill-btn" data-query="How can I lower glucose naturally?"><i class="fa-solid fa-droplet"></i> Lower glucose naturally?</button>
+                            <button class="suggested-pill-btn" data-query="What causes high cholesterol?"><i class="fa-solid fa-vial"></i> Causes of high cholesterol?</button>
+                            <button class="suggested-pill-btn" data-query="How to reduce BP?"><i class="fa-solid fa-heart"></i> How to reduce BP?</button>
+                        </div>
+                    </div>
+
+                    <!-- Right: Chat Box -->
+                    <div class="card chat-card-box">
+                        <!-- Chat Disclaimer -->
+                        <div class="chat-disclaimer">
+                            <i class="fa-solid fa-triangle-exclamation"></i> Educational guidance only. This assistant does not replace professional medical advice.
+                        </div>
+                        
+                        <!-- Chat Conversation Logs -->
+                        <div class="chat-logs-area" id="chat-logs-area">
+                            <div class="chat-bubble bubble-assistant">
+                                Hello! I am your AI Health Assistant. I see your analysis details and priority targets. How can I help you interpret your metrics or recommendations today?
+                            </div>
+                        </div>
+
+                        <!-- Chat Input Row -->
+                        <div class="chat-input-row">
+                            <input type="text" id="chat-input" placeholder="Ask a question about your screening report...">
+                            <button class="chat-send-btn" id="btn-chat-send"><i class="fa-solid fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Export PDF Report Bottom Row -->
+                <div class="card border-normal" style="margin-top: 15px; background-color: #F8FAFC;">
+                    <div class="export-row-container">
+                        <div class="export-description">
+                            <h3 style="margin: 0 0 4px 0; color: #0D5C75; font-family: 'Outfit', sans-serif;\"><i class="fa-regular fa-file-pdf"></i> Export Clinical Assessment Report</h3>
+                            <p style="margin: 0; font-size: 0.85rem; color: #64748B; font-weight: 500;">Compile a high-quality clinical-grade PDF screening report including patient details, risk categories, Attributions, priority metrics, and recommendations.</p>
+                        </div>
+                        <div class="export-actions">
+                            <button class="btn btn-primary" id="btn-export-pdf"><i class="fa-solid fa-download"></i> Export Professional Screening Report</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>Educational Use Only • Not Medical Advice</p>
+        </footer>
+    </div>
+
+    <!-- Script file -->
+    <script src="app.js?v=20260623"></script>
+</body>
+</html>
