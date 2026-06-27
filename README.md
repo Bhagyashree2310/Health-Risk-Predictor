@@ -1,62 +1,141 @@
-# Health Risk Predictor 🏥
+# 🏥 Health Risk Predictor
 
-An AI-powered preventive healthcare screening dashboard that predicts cardiovascular and metabolic health risk profiles, imports completed assessments from a linked Google Sheet (intake queue), provides explainable AI local feature importances, and compiles custom clinical PDF reports.
+An AI-powered healthcare application that predicts cardiovascular and metabolic health risks using a **Random Forest Machine Learning model**. The platform analyzes patient health data, provides AI-powered insights, generates personalized health recommendations, and creates downloadable PDF health reports.
 
-## 🌟 Key Features
+---
 
-1. **🏥 Grouped Health Assessment**: Labeled form fields segmented into *Demographics*, *Clinical Vitals*, and *Lifestyle Profile* sections. Includes validation checks and real-time BMI updates.
-2. **📋 Google Form Intake Queue**: Read-only import of submissions from a linked Google Sheet CSV export. Submissions are shown in a queue; clicking "Run Risk Engine" runs them through the ML risk predictor.
-3. **📊 Cardiometabolic Insights**:
-   - **Vitals Summary**: A row of compact stat cards showing patient BMI, Blood Pressure, Fasting Glucose, and Total Cholesterol directly.
-   - **Risk Gauge**: A speedometer-style Plotly gauge chart visualizing risk tiers.
-   - **Clear Metric Definitions**: Explanations detailing the difference between Risk Score (ML probability matching) and Algorithm Confidence (classifier certainty).
-4. **🥗 Tailored Recommendations**: Diet, exercise, lifestyle, and preventive health guidance based on clinical guidelines.
-5. **📥 Downloadable Reports**: Compiles print-ready, letter-size **ReportLab PDFs** complete with patient vitals, risk levels, and recommendations.
+## 🌟 Features
+
+- Patient health assessment form
+- Health risk prediction using Machine Learning
+- AI-powered health insights using the Groq API
+- Random Forest–based risk classification
+- Explainable risk analysis
+- Personalized health recommendations
+- Interactive health dashboard
+- Downloadable PDF health reports
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Frontend/Dashboard**: Streamlit (v1.58.0)
-- **Machine Learning**: Scikit-Learn (v1.9.0) (Random Forest Classifier)
-- **Visualization**: Plotly (v6.7.0)
-- **Database**: SQLite3 (for storage schema models)
-- **PDF Generation**: ReportLab (v4.5.1)
+### Frontend
+- HTML
+- CSS
+- JavaScript
+
+### Backend
+- Python
+
+### Machine Learning
+- Scikit-learn
+- Random Forest Classifier
+
+### AI
+- Groq API
+- Llama 3.3 70B Model
+- Prompt Engineering
+
+### Visualization
+- Plotly
+
+### PDF Generation
+- ReportLab
+
+### Other Libraries
+- Pandas
+- NumPy
 
 ---
 
-## 🏗️ Architecture
+## 📂 Project Structure
 
-```mermaid
-graph TD
-    A[Google Form Submission / Sheet CSV] -->|CSV Fetch Queue| B(Streamlit Web UI)
-    C[Manual Grouped Inputs] -->|Form Submit| B
-    B -->|Features Vector| D[Random Forest Classifier]
-    D -->|Class Probabilities| E[Continuous Risk Score & Category]
-    B -->|Perturbation Inputs| F[Explainable AI Engine]
-    E & F -->|Heuristic Engine| G[Tailored Recommendations]
-    B -->|Compile Flowables| H[ReportLab PDF Generator]
-    H -->|Download Trigger| I[Health Report PDF]
+```text
+Health-Risk-Predictor/
+│
+├── static/
+│   ├── index.html
+│   ├── style.css
+│   └── app.js
+│
+├── app.py
+├── ai_helper.py
+├── ml_model.py
+├── ocr_helper.py
+├── report_generator.py
+├── model.joblib
+├── requirements.txt
+└── README.md
 ```
 
 ---
 
-## 🚀 Setup & Execution
+## ⚙️ Installation
 
-### Prerequisites
-Make sure Python 3.10+ is installed on your system.
+### 1. Clone the Repository
 
-### Running the Application
+```bash
+git clone https://github.com/Bhagyashree2310/Health-Risk-Predictor.git
+cd Health-Risk-Predictor
+```
 
-1. **Navigate to the project directory**:
-   ```bash
-   cd C:\Users\bkapa\.gemini\antigravity-ide\scratch\health_risk_predictor
-   ```
+### 2. Install Dependencies
 
-2. **Run the Streamlit Dashboard**:
-   ```bash
-   streamlit run app.py
-   ```
+```bash
+pip install -r requirements.txt
+```
 
-3. **Check the Google Form Queue**:
-   Open the **Google Form Intake Queue** tab and click **Run Risk Engine** on any submission to view the ML prediction insights in real-time.
+### 3. Create a `.env` File
+
+```env
+GROQ_API_KEY=your_api_key_here
+```
+
+### 4. Run the Application
+
+```bash
+python app.py
+```
+
+---
+
+## 🚀 Workflow
+
+1. Enter patient health details.
+2. The system preprocesses the input data.
+3. The Random Forest model predicts the patient's health risk.
+4. The Groq LLM analyzes the prediction and generates personalized health insights.
+5. A downloadable PDF health report is generated.
+
+---
+
+## 🎯 Use Cases
+
+- Preventive healthcare screening
+- Early disease risk assessment
+- Personalized health recommendations
+- Clinical decision support
+- Patient health monitoring
+
+---
+
+## 📄 Output
+
+The application generates:
+
+- Health Risk Category (Low, Medium, High)
+- Risk Score
+- AI-powered Health Insights
+- Personalized Recommendations
+- Downloadable PDF Health Report
+
+---
+
+## 🔮 Future Enhancements
+
+- Patient login and authentication
+- Doctor dashboard
+- Patient history tracking
+- Health trend visualization
+- Wearable device integration
+- Email reminders and follow-up notifications
